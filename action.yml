@@ -1,5 +1,8 @@
 name: Delete Uptime KumaMaintenance
 description: GitHub Action for deleting an uptime kuma maintenance
+branding:
+  icon: delete
+  color: green
 inputs:
   UPTIME_USERNAME:
     description: 'Uptime username'
