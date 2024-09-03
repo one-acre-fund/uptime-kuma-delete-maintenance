@@ -1,0 +1,44 @@
+name: Delete Uptime KumaMaintenance
+description: GitHub Action for deleting an uptime kuma maintenance
+inputs:
+  UPTIME_USERNAME:
+    description: 'Uptime username'
+    required: true
+  UPTIME_PASSWORD:
+    description: 'Uptime password'
+    required: true
+  UPTIME_API_URL:
+    description: 'Uptime API URL'
+    required: true
+  MAINTENANCE_ID:
+    description: 'Maintenance ID to delete'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Run Python script
+      shell: bash
+      env:
+        UPTIME_USERNAME: ${{ inputs.UPTIME_USERNAME }}
+        UPTIME_PASSWORD: ${{ inputs.UPTIME_PASSWORD }}
+        UPTIME_API_URL: ${{ inputs.UPTIME_API_URL }}
+        MAINTENANCE_ID: ${{ inputs.MAINTENANCE_ID }}
+      run: |
+        # Get the access token
+          TOKEN=$(curl -X POST -L -H 'Content-Type: application/x-www-form-urlencoded' \
+            --data "username=${UPTIME_USERNAME}&password=${UPTIME_PASSWORD}" \
+            "${UPTIME_API_URL}/login/access-token/" | jq -r ".access_token")
+
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to obtain access token"
+            exit 1
+          fi
+
+          # Delete the maintenance window
+          DELETE_RESPONSE=$(curl -sL -X DELETE -H "Authorization: Bearer ${TOKEN}" \
+            -H "accept: application/json" \
+            "${UPTIME_API_URL}/maintenance/${MAINTENANCE_ID}")
+
+          echo "Delete response: $DELETE_RESPONSE"
+          echo "Maintenance ID ${MAINTENANCE_ID} deleted successfully."
