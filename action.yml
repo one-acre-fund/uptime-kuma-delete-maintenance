@@ -1,4 +1,4 @@
-name: Delete Uptime KumaMaintenance
+name: Delete Uptime Kuma Maintenance
 description: GitHub Action for deleting an uptime kuma maintenance
 branding:
   icon: delete
