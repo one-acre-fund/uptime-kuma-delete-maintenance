@@ -16,6 +16,9 @@ inputs:
   MAINTENANCE_ID:
     description: 'Maintenance ID to delete'
     required: true
+  MAINTENANCE_TITLE:
+    description: 'Maintenance title'
+    required: false
 
 runs:
   using: composite
@@ -45,3 +48,21 @@ runs:
 
           echo "Delete response: $DELETE_RESPONSE"
           echo "Maintenance ID ${MAINTENANCE_ID} deleted successfully."
+
+          if [ -n "$MAINTENANCE_TITLE" ]; then
+            echo "Maintenance title: $MAINTENANCE_TITLE"
+            MAINTENANCES=$(curl -s -X GET -H "Authorization: Bearer ${TOKEN}" \
+              -H "accept: application/json" \
+              "${UPTIME_API_URL}/maintenance/")
+
+            MAINTENANCE_IDS=$(echo $MAINTENANCES | jq -r ".maintenances[] | select(.title == \"$MAINTENANCE_TITLE\") | .id")
+
+            for MAINTENANCE_ID in $MAINTENANCE_IDS; do
+              echo "Deleting maintenance ID: $MAINTENANCE_ID"
+              DELETE_RESPONSE=$(curl -sL -X DELETE -H "Authorization: Bearer ${TOKEN}" \
+                              -H "accept: application/json" \
+                              "${UPTIME_API_URL}/maintenance/${MAINTENANCE_ID}")
+              echo "Delete response: $DELETE_RESPONSE"
+              echo "Maintenance ID ${MAINTENANCE_ID} deleted successfully."
+            done
+          fi
